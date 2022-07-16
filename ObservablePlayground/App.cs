@@ -1,4 +1,7 @@
-﻿namespace ObservablePlayground;
+﻿using System.Reactive.Linq;
+using System.Reactive.Subjects;
+
+namespace ObservablePlayground;
 
 public class App
 {
@@ -29,6 +32,33 @@ public class App
         messageObservable.ChangeMessage("Third text, that even cooler!!");
         unsubscribe3.Dispose();
         messageObservable.ChangeMessage($"This message will not be available for losers, which is {nameof(messageListener1)}");
+
+
+        Console.WriteLine("\n\n____________Subject reactive test.__________\n");
+
+        ISubject<Message> messageStream = new Subject<Message>();
+
+        var observable1 = messageStream.Where(m => m.Text.Contains("Hello")).AsObservable();
+
+        var observable2 = messageStream.AsObservable();
+
+        observable1.Subscribe(m => Console.WriteLine($"From {nameof(observable1)}: {m.Text}"));
+        observable2.Subscribe(m => Console.WriteLine($"From {nameof(observable2)}: {m.Text}"));
+
+        //Only observable2 will receive this messages 
+        messageStream.OnNext(new Message("asdasd"));
+        messageStream.OnNext(new Message("123123"));
+
+        //This messages will be resived by observable1 and observable2
+        messageStream.OnNext(new Message("Hello"));
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("\n\nI LOVE ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("LEMONS");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("!");
+        Console.ForegroundColor = ConsoleColor.White;
     }
 }
 
